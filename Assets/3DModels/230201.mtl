@@ -1,0 +1,39 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
+
+newmtl FrontColor
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.330000 0.330000 0.330000
+
+newmtl Concrete_Form_4x8
+Ka 0.000000 0.000000 0.000000
+Kd 0.654902 0.666667 0.658824
+Ks 0.330000 0.330000 0.330000
+map_Kd 230201/Concrete_Form_4x8.jpg
+
+newmtl Blinds_Roman_Hobbled_Blue
+Ka 0.000000 0.000000 0.000000
+Kd 0.317647 0.321569 0.341176
+Ks 0.330000 0.330000 0.330000
+map_Kd 230201/Blinds_Roman_Hobbled_Blue.jpg
+
+newmtl Polished_Concrete_New
+Ka 0.000000 0.000000 0.000000
+Kd 0.784314 0.784314 0.796078
+Ks 0.330000 0.330000 0.330000
+map_Kd 230201/Polished_Concrete_New.jpg
+
+newmtl Image
+Ka 0.000000 0.000000 0.000000
+Kd 0.388235 0.443137 0.423529
+Ks 0.330000 0.330000 0.330000
+map_Kd 230201/Image.jpg
+
+newmtl Image1_
+Ka 0.000000 0.000000 0.000000
+Kd 0.388235 0.443137 0.423529
+Ks 0.330000 0.330000 0.330000
+map_Kd 230201/Image1_.jpg
+
