@@ -154,8 +154,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 65082375}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071069, y: -0.000000042406437, z: -0.000000011694675, w: 0.70710665}
-  m_LocalPosition: {x: 0.00002196851, y: 760.1302, z: 0.000011065618}
+  m_LocalRotation: {x: 0.7071056, y: -0.000000045600515, z: -0.00000008838541, w: 0.7071081}
+  m_LocalPosition: {x: 0.98495424, y: 165.10637, z: -22.110544}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -245,15 +245,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IsInitialized: 1
   m_LocalPosition:
-    x: 3905157.6782682114
-    y: 5000394.342752722
-    z: 517334.24538250524
+    x: -4644928.015386308
+    y: -3539294.3548193425
+    z: 2550285.2609070903
   m_LocalRotation:
     value:
-      x: -0.28867823
-      y: 0.6761147
-      z: -0.32944286
-      w: -0.59245354
+      x: 0.14854771
+      y: -0.82317996
+      z: -0.25102484
+      w: -0.48712918
   m_LocalScale:
     x: 1
     y: 1
@@ -342,8 +342,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   position:
-    x: 7.5462962
-    y: 51.9561162
+    x: 151.2311308
+    y: -33.9176507
     z: 760.1302230158891
     SRWkid: 4326
   rotation:
@@ -543,8 +543,8 @@ MonoBehaviour:
     UseOriginAsCenter: 0
   layers: []
   originPosition:
-    x: 7.5462962
-    y: 51.9561162
+    x: 151.2311308
+    y: -33.9176507
     z: 0
     SRWkid: 4326
   mapType: 0
@@ -570,15 +570,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_LocalPosition:
-    x: 3904693.293873299
-    y: 4999795.710574467
-    z: 517272.7262403086
+    x: -4644818.2555708075
+    y: -3539183.877508286
+    z: 2550226.121205145
   m_LocalRotation:
     value:
-      x: -0.21480171
-      y: -0.7110365
-      z: -0.24513412
-      w: 0.62305427
+      x: -0.44949096
+      y: 0.40457615
+      z: 0.7595768
+      w: 0.239414
 --- !u!1 &854643604 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4613312426491239679, guid: dd9f75ca8afb4cd4f9de3cc604c8c145, type: 3}
