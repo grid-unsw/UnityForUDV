@@ -11,9 +11,9 @@ using UnityEngine;
 #if UNITY_EDITOR
 public static class DBquery
 {
-   public static void LoadTriangleData(NpgsqlConnection connection, string tableName, MonoBehaviour handle, string extrusion, Material material, 
-       ArcGISMapComponent arcGISMapComponent)
-   {
+    public static void LoadTriangleData(NpgsqlConnection connection, string tableName, MonoBehaviour handle, string extrusion, Material material,
+        ArcGISMapComponent arcGISMapComponent)
+    {
         connection.Open();
         DbCommonFunctions.CheckIfTableExist(tableName, connection);
 
@@ -22,8 +22,8 @@ public static class DBquery
         var metadata = LoadMetadata(connection, tableName);
 
         var geomType = metadata.Item2[0];
-        if (geomType == PostgisGeometryType.ST_Polygon.ToString() 
-            || geomType == PostgisGeometryType.ST_MultiPolygon.ToString()            )
+        if (geomType == PostgisGeometryType.ST_Polygon.ToString()
+            || geomType == PostgisGeometryType.ST_MultiPolygon.ToString())
         {
             var centroids = GetCentroids(connection, tableName);
             if (extrusion == "")
@@ -35,7 +35,7 @@ public static class DBquery
                 DrawExtrudedPolygon(connection, tableName, handle, material, arcGISMapComponent, metadata.Item1, centroids, extrusion);
             }
         }
-        else if(geomType == PostgisGeometryType.ST_PolyhedralSurface.ToString())
+        else if (geomType == PostgisGeometryType.ST_PolyhedralSurface.ToString())
         {
             var centroids = GetCentroids(connection, tableName);
             DrawPolyhedron(connection, tableName, handle, material, arcGISMapComponent, metadata.Item1, centroids);
@@ -48,161 +48,161 @@ public static class DBquery
         connection.Close();
     }
 
-   public static void LoadPointData(NpgsqlConnection connection, string tableName, MonoBehaviour handle, Material material, ArcGISMapComponent arcGISMapComponent, GameObject prefab, float scaleSize)
-   {
-       connection.Open();
-       DbCommonFunctions.CheckIfTableExist(tableName, connection);
+    public static void LoadPointData(NpgsqlConnection connection, string tableName, MonoBehaviour handle, Material material, ArcGISMapComponent arcGISMapComponent, GameObject prefab, float scaleSize)
+    {
+        connection.Open();
+        DbCommonFunctions.CheckIfTableExist(tableName, connection);
 
-       connection.TypeMapper.UseNetTopologySuite();
+        connection.TypeMapper.UseNetTopologySuite();
 
-       var metadata = LoadMetadata(connection, tableName);
+        var metadata = LoadMetadata(connection, tableName);
 
-       var geomType = metadata.Item2[0];
-       if (geomType == PostgisGeometryType.ST_Point.ToString())
-       {
-           DrawPoints(connection, tableName, handle, prefab, metadata.Item1, material, arcGISMapComponent, scaleSize);
-       }
-       else
-       {
-           Debug.Log("Not supported geometry.");
-       }
+        var geomType = metadata.Item2[0];
+        if (geomType == PostgisGeometryType.ST_Point.ToString())
+        {
+            DrawPoints(connection, tableName, handle, prefab, metadata.Item1, material, arcGISMapComponent, scaleSize);
+        }
+        else
+        {
+            Debug.Log("Not supported geometry.");
+        }
 
-       connection.Close();
-   }
+        connection.Close();
+    }
 
     private static (List<string[]>, string[]) LoadMetadata(NpgsqlConnection connection, string tableName)
-   {
-       var sqlTest = $"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{tableName}'";
-       var cmd = new NpgsqlCommand(sqlTest, connection);
-       var columnList = new List<string>();
-       using (var reader = cmd.ExecuteReader())
-       {
-           while (reader.Read())
-           {
-               columnList.Add(reader[0].ToString());
-           }
-       }
+    {
+        var sqlTest = $"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{tableName}'";
+        var cmd = new NpgsqlCommand(sqlTest, connection);
+        var columnList = new List<string>();
+        using (var reader = cmd.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                columnList.Add(reader[0].ToString());
+            }
+        }
 
-       var fieldCount = columnList.Count;
-       var sqlTest1 = $"SELECT * FROM \"{tableName}\"";
-       cmd = new NpgsqlCommand(sqlTest1, connection);
-       cmd.AllResultTypesAreUnknown = true;
-       var metadata = new List<string[]>();
-       using (var reader = cmd.ExecuteReader())
-       {
-           while (reader.Read())
-           {
-               var data = new string[fieldCount];
-               for (var j = 0; j < reader.FieldCount; j++)
-               {
-                   data[j] = $"{columnList[j]}: {reader[j]}";
-               }
+        var fieldCount = columnList.Count;
+        var sqlTest1 = $"SELECT * FROM \"{tableName}\"";
+        cmd = new NpgsqlCommand(sqlTest1, connection);
+        cmd.AllResultTypesAreUnknown = true;
+        var metadata = new List<string[]>();
+        using (var reader = cmd.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                var data = new string[fieldCount];
+                for (var j = 0; j < reader.FieldCount; j++)
+                {
+                    data[j] = $"{columnList[j]}: {reader[j]}";
+                }
 
-               metadata.Add(data);
-           }
-       }
+                metadata.Add(data);
+            }
+        }
 
-       //update geom field
-       var geometriesType = new string[metadata.Count];
-       for (var j = 0; j < columnList.Count; j++)
-       {
-           var value = columnList[j];
-           var valueLowerCase = value.ToLower();
-           if (valueLowerCase == "geom" || valueLowerCase == "geometry")
-           {
-               var sqlGeometryType = $"SELECT ST_GeometryType(st_geometryN({value},1)) from \"{tableName}\"";
-               var cmd1 = new NpgsqlCommand(sqlGeometryType, connection);
+        //update geom field
+        var geometriesType = new string[metadata.Count];
+        for (var j = 0; j < columnList.Count; j++)
+        {
+            var value = columnList[j];
+            var valueLowerCase = value.ToLower();
+            if (valueLowerCase == "geom" || valueLowerCase == "geometry")
+            {
+                var sqlGeometryType = $"SELECT ST_GeometryType(st_geometryN({value},1)) from \"{tableName}\"";
+                var cmd1 = new NpgsqlCommand(sqlGeometryType, connection);
 
-               using (var reader = cmd1.ExecuteReader())
-               {
-                   var k = 0;
-                   while (reader.Read())
-                   {
-                       var geomType = reader[0].ToString();
-                       metadata[k][j] = $"{value}: {geomType}";
-                       geometriesType[k] = geomType;
-                       k++;
-                   }
-               }
+                using (var reader = cmd1.ExecuteReader())
+                {
+                    var k = 0;
+                    while (reader.Read())
+                    {
+                        var geomType = reader[0].ToString();
+                        metadata[k][j] = $"{value}: {geomType}";
+                        geometriesType[k] = geomType;
+                        k++;
+                    }
+                }
 
-               break;
-           }
-       }
+                break;
+            }
+        }
 
-       return (metadata, geometriesType);
-   }
+        return (metadata, geometriesType);
+    }
 
-   private static List<(Point, Point)> GetCentroids(NpgsqlConnection connection, string tableName)
-   {
-       var sqlCentroids = $"select st_centroid(ST_Points(geom)), st_transform(st_setsrid(st_centroid(ST_Points(geom)),28356),4326) from \"{tableName}\"";
+    private static List<(Point, Point)> GetCentroids(NpgsqlConnection connection, string tableName)
+    {
+        var sqlCentroids = $"select st_centroid(ST_Points(geom)), st_transform(st_setsrid(st_centroid(ST_Points(geom)),28356),4326) from \"{tableName}\"";
 
-       var cmd = new NpgsqlCommand(sqlCentroids, connection);
-       var objectsCentroids = new List<(Point, Point)>();
+        var cmd = new NpgsqlCommand(sqlCentroids, connection);
+        var objectsCentroids = new List<(Point, Point)>();
 
-       using (var reader = cmd.ExecuteReader())
-       {
-           while (reader.Read())
-           {
-               objectsCentroids.Add(((Point)reader[0], (Point)reader[1]));
-           }
-       }
+        using (var reader = cmd.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                objectsCentroids.Add(((Point)reader[0], (Point)reader[1]));
+            }
+        }
 
-       return objectsCentroids;
-   }
+        return objectsCentroids;
+    }
 
-   private static void DrawPoints(NpgsqlConnection connection, string tableName, MonoBehaviour handle, GameObject prefab, List<string[]> metadata, Material material, ArcGISMapComponent arcGISMapComponent, float pointSize)
-   {
-       var sqlCentroids = $"select geom from \"{tableName}\"";
+    private static void DrawPoints(NpgsqlConnection connection, string tableName, MonoBehaviour handle, GameObject prefab, List<string[]> metadata, Material material, ArcGISMapComponent arcGISMapComponent, float pointSize)
+    {
+        var sqlCentroids = $"select geom from \"{tableName}\"";
 
-       var cmd = new NpgsqlCommand(sqlCentroids, connection);
-       var i = 0;
-       using (var reader = cmd.ExecuteReader())
-       {
-           while (reader.Read())
-           {
-               var point = (Point)reader[0];
-               handle.StartCoroutine(InstantiatePoint(prefab, handle.gameObject, point, metadata[i], material, arcGISMapComponent, pointSize));
-               i++;
-           }
-       }
-   }
+        var cmd = new NpgsqlCommand(sqlCentroids, connection);
+        var i = 0;
+        using (var reader = cmd.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                var point = (Point)reader[0];
+                handle.StartCoroutine(InstantiatePoint(prefab, handle.gameObject, point, metadata[i], material, arcGISMapComponent, pointSize));
+                i++;
+            }
+        }
+    }
 
-   private static IEnumerator InstantiatePoint(GameObject prefab, GameObject parent, Point point, string[] metadata, Material material, ArcGISMapComponent arcGISMapComponent, float pointSize)
-   {
-       GameObject pointGO;
-       var verticalOffset = 0f;
-       if (prefab != null)
-       {
-           pointGO = Object.Instantiate(prefab);
-           verticalOffset = pointGO.GetComponent<Renderer>().bounds.size.y / 2;
-       }
-       else
-       {
-           pointGO = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-           pointGO.GetComponent<Renderer>().material = material;
-           Object.DestroyImmediate(pointGO.GetComponent<SphereCollider>());
-       }
+    private static IEnumerator InstantiatePoint(GameObject prefab, GameObject parent, Point point, string[] metadata, Material material, ArcGISMapComponent arcGISMapComponent, float pointSize)
+    {
+        GameObject pointGO;
+        var verticalOffset = 0f;
+        if (prefab != null)
+        {
+            pointGO = Object.Instantiate(prefab);
+            verticalOffset = pointGO.GetComponent<Renderer>().bounds.size.y / 2;
+        }
+        else
+        {
+            pointGO = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            pointGO.GetComponent<Renderer>().material = material;
+            Object.DestroyImmediate(pointGO.GetComponent<SphereCollider>());
+        }
 
-       pointGO.transform.localScale = new Vector3(pointSize, pointSize, pointSize);
+        pointGO.transform.localScale = new Vector3(pointSize, pointSize, pointSize);
 
-       pointGO.name = metadata[0];
-       pointGO.transform.parent = parent.transform;
-       pointGO.layer = 6;//gis layer
-       var location = pointGO.AddComponent<ArcGISLocationComponent>();
-       location.Position = new ArcGISPoint(point.X, point.Y, 100, new ArcGISSpatialReference(4326));
-       pointGO.AddComponent<DataPropeties>().Propeties = metadata;
-       if (prefab != null)
-       {
-           location.Rotation = new ArcGISRotation(90, 90, 0);
-       }
-       yield return null;
-       yield return null;
-       ArcGISFunctions.SetElevation(pointGO, arcGISMapComponent, verticalOffset);
-       pointGO.AddComponent<MeshCollider>();
-   }
+        pointGO.name = metadata[0];
+        pointGO.transform.parent = parent.transform;
+        pointGO.layer = 6;//gis layer
+        var location = pointGO.AddComponent<ArcGISLocationComponent>();
+        location.Position = new ArcGISPoint(point.X, point.Y, 100, new ArcGISSpatialReference(4326));
+        pointGO.AddComponent<DataPropeties>().Propeties = metadata;
+        if (prefab != null)
+        {
+            location.Rotation = new ArcGISRotation(90, 90, 0);
+        }
+        yield return null;
+        yield return null;
+        ArcGISFunctions.SetElevation(pointGO, arcGISMapComponent, verticalOffset);
+        pointGO.AddComponent<MeshCollider>();
+    }
 
-   private static void DrawPolygons(NpgsqlConnection connection, string tableName, MonoBehaviour handle, Material material, ArcGISMapComponent arcGISMapComponent, List<string[]> metaData, List<(Point, Point)> objectsCentroids)
-   {
+    private static void DrawPolygons(NpgsqlConnection connection, string tableName, MonoBehaviour handle, Material material, ArcGISMapComponent arcGISMapComponent, List<string[]> metaData, List<(Point, Point)> objectsCentroids)
+    {
         var polyhedronsCount = objectsCentroids.Count;
         var sqlPoints = $"select a.id, (a.geom_pnt).geom from(SELECT id, ST_DumpPoints(st_tesselate(ST_ForcePolygonCW(geom))) As geom_pnt FROM \"{tableName}\") as a";
 
@@ -225,7 +225,7 @@ public static class DBquery
                         var surfaceId = (int)reader[0];
                         if (surfaceId > previousSurfaceId)
                         {
-                            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, arcGISMapComponent, $"Polygon {polyhedronId}", vertices, indices, polyhedronCentroid, metaData[polyhedronId]));
+                            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, $"Polygon {polyhedronId}", vertices, indices, polyhedronCentroid, metaData[polyhedronId]));
                             indices = new List<int>();
                             vertices = new List<Vector3>();
                             i1 = 0;
@@ -238,7 +238,8 @@ public static class DBquery
                         previousSurfaceId = surfaceId;
 
                         indices.Add(i1);
-                        vertices.Add(GetShiftedVector3((Point)reader[1], polyhedronCentroid.Item1));
+                        var vertex = GetShiftedVector3((Point)reader[1], polyhedronCentroid.Item1);
+                        vertices.Add(vertex);
                         i++;
                         i1++;
                         break;
@@ -259,12 +260,12 @@ public static class DBquery
                         break;
                 }
             }
-            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, arcGISMapComponent, $"Polygon {polyhedronId}", vertices, indices, polyhedronCentroid, metaData[polyhedronId]));
+            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, $"Polygon {polyhedronId}", vertices, indices, polyhedronCentroid, metaData[polyhedronId]));
         }
     }
 
-   private static void DrawExtrudedPolygon(NpgsqlConnection connection, string tableName, MonoBehaviour handle, Material material, ArcGISMapComponent arcGISMapComponent, List<string[]> metaData, 
-       List<(Point, Point)> objectsCentroids, string extrusion)
+    private static void DrawExtrudedPolygon(NpgsqlConnection connection, string tableName, MonoBehaviour handle, Material material, ArcGISMapComponent arcGISMapComponent, List<string[]> metaData,
+        List<(Point, Point)> objectsCentroids, string extrusion)
     {
         var polyhedronsCount = objectsCentroids.Count;
         var sqlPoints = $"select b.surface[2], (b.geom_pnt).geom from(SELECT(a.p_geom).path as surface, " +
@@ -304,7 +305,7 @@ public static class DBquery
                         var surfaceId = (int)reader[0];
                         if (surfaceId < previousSurfaceId)
                         {
-                            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, arcGISMapComponent, $"Polyhedron {polyhedronId}", vertices, indices, polyhedronCentroid,
+                            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, $"Polyhedron {polyhedronId}", vertices, indices, polyhedronCentroid,
                                 metaData[polyhedronId]));
                             indices = new List<int>();
                             vertices = new List<Vector3>();
@@ -344,54 +345,54 @@ public static class DBquery
                 }
             }
 
-            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, arcGISMapComponent, $"Polyhedron {polyhedronId}", vertices, indices, polyhedronCentroid, metaData[polyhedronId]));
+            handle.StartCoroutine(InstantiateMesh(handle.gameObject, material, $"Polyhedron {polyhedronId}", vertices, indices, polyhedronCentroid, metaData[polyhedronId]));
         }
     }
 
-    private static IEnumerator InstantiateMesh(GameObject parent, Material material, ArcGISMapComponent arcGISMapComponent,
+    private static IEnumerator InstantiateMesh(GameObject parent, Material material,
        string objectName, List<Vector3> vertices, List<int> indices, (Point, Point) polyhedronCentroid, string[] properties)
-   {
-       var gameObject = new GameObject(objectName, typeof(MeshFilter), typeof(MeshRenderer), typeof(DataPropeties));
+    {
+        var gameObject = new GameObject(objectName, typeof(MeshFilter), typeof(MeshRenderer), typeof(DataPropeties));
         var mesh = new Mesh
-       {
-           vertices = vertices.ToArray(),
-           triangles = indices.ToArray()
-       };
+        {
+            vertices = vertices.ToArray(),
+            triangles = indices.ToArray()
+        };
 
-       mesh.RecalculateNormals();
-       gameObject.GetComponent<MeshFilter>().mesh = mesh;
-       gameObject.GetComponent<Renderer>().material = material;
-       gameObject.GetComponent<DataPropeties>().Propeties = properties;
-       gameObject.transform.parent = parent.transform;
-       gameObject.layer = 6;//gis layer
-       var location = gameObject.AddComponent<ArcGISLocationComponent>();
-       location.Position = new ArcGISPoint(polyhedronCentroid.Item2.X, polyhedronCentroid.Item2.Y, 100, new ArcGISSpatialReference(4326));
-       // need a frame for location component updates to occur
-       yield return null;
-       yield return null;
-       ArcGISFunctions.SetElevation(gameObject, arcGISMapComponent, 5);
-       gameObject.AddComponent<MeshCollider>();
-   }
+        mesh.RecalculateNormals();
+        gameObject.GetComponent<MeshFilter>().mesh = mesh;
+        gameObject.GetComponent<Renderer>().material = material;
+        gameObject.GetComponent<DataPropeties>().Propeties = properties;
+        gameObject.transform.parent = parent.transform;
+        gameObject.layer = 6;//gis layer
+        var location = gameObject.AddComponent<ArcGISLocationComponent>();
+        location.Position = new ArcGISPoint(polyhedronCentroid.Item2.X, polyhedronCentroid.Item2.Y, 100, new ArcGISSpatialReference(4326));
+        // need a frame for location component updates to occur
+        yield return null;
+        yield return null;
+        ArcGISFunctions.SnapObjectToTerrain(gameObject);
+        gameObject.AddComponent<MeshCollider>();
+    }
 
-   private static Vector3 GetShiftedVector3(Point point, Point shift)
-   {
-       if (double.IsNaN(point.Z))
-       {
-           return new Vector3((float)(point.X - shift.X), (float)(point.Y - shift.Y), 0);
-       }
+    private static Vector3 GetShiftedVector3(Point point, Point shift)
+    {
+        if (double.IsNaN(point.Z))
+        {
+            return new Vector3((float)(point.X - shift.X), (float)(point.Y - shift.Y), 0);
+        }
 
-       return new Vector3((float)(point.X - shift.X), (float)(point.Y - shift.Y), (float)point.Z);
-   }
+        return new Vector3((float)(point.X - shift.X), (float)(point.Y - shift.Y), (float)point.Z);
+    }
 
-   private static Vector3[] GetArrayOfVectorsUp(int vectorsCount)
-   {
-       var vectorsUp = new Vector3[vectorsCount];
-       for (var i = 0; i < vectorsCount; i++)
-       {
-           vectorsUp[i] = Vector3.up;
-       }
+    private static Vector3[] GetArrayOfVectorsUp(int vectorsCount)
+    {
+        var vectorsUp = new Vector3[vectorsCount];
+        for (var i = 0; i < vectorsCount; i++)
+        {
+            vectorsUp[i] = Vector3.up;
+        }
 
-       return vectorsUp;
-   }
+        return vectorsUp;
+    }
 }
 #endif
