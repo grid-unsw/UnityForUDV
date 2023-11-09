@@ -44,11 +44,10 @@ public class DbDataWrite : MonoBehaviour
                 foreach (var meshFilter in arcGisLocationComponent.gameObject.GetComponentsInChildren<MeshFilter>())
                 {
                     meshFilters.Add(meshFilter);
-                    var meshFilterTranslation = meshFilter.gameObject.transform.position;
                     var mainParentTranslation = arcGisLocationComponent.gameObject.transform.position;
-                    var centroid = new ArcGISPoint(reprojectedLocation.X - mainParentTranslation.x - meshFilterTranslation.x,
-                        reprojectedLocation.Y - mainParentTranslation.z - meshFilterTranslation.z,
-                        reprojectedLocation.Z - mainParentTranslation.y - meshFilterTranslation.y);
+                    var centroid = new ArcGISPoint(reprojectedLocation.X - mainParentTranslation.x,
+                        reprojectedLocation.Y - mainParentTranslation.z,
+                        reprojectedLocation.Z - mainParentTranslation.y);
                     centroids.Add(centroid);
                 }
             }
